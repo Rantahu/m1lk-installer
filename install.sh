@@ -1,10 +1,10 @@
 #!/bin/bash
 
-# M1Lk Rice Installer
+# M!Lk Rice Installer
 # by Rantahu <rantahu@gmail.com>
 # License: GNU GPLv3
 
-
+### Vars
 [ -z ${dotfiles+x} ] && dotfiles="https://github.com/rantahu/dotfiles.git"
 [ -z ${requirements+x} ] && requirements="https://raw.githubusercontent.com/rantahu/m1lk-installer/master/requirements.csv"
 
@@ -14,19 +14,20 @@ initialCheck() {
     echo "This script must be run as root"
     exit 1
   fi
-  echo "Checking connection to internet?"
-  ping -q -w 1 -c 1 `ip r | grep default | cut -d ' ' -f 3` > /dev/null && echo "...ok" || { echo >&2 "Please check your internet connection"; exit 1; }
+  echo -ne "Checking connection to internet..."
+  ping -q -w 1 -c 1 `ip r | grep default | cut -d ' ' -f 3` > /dev/null && echo " Ok!" || { echo >&2 "Please check your internet connection"; exit 1; }
   echo "Checks done!"
 }
 
 install() {
-	dialog --title "M1lk Installation" --infobox "Installing \`$1\` ($n of $total). $1 $2." 5 70
-	apt-get install "$1" &>/dev/null
+	echo -ne "M!lk Installation - Installing \`$1\` ($n of $total). $1 $2..."
+  apt-get install "$1" &> /dev/null
+  echo " Done!"
 }
 
 makeinstall() {
 	dir=$(mktemp -d)
-	dialog --title "M1lk Installation" --infobox "Installing \`$(basename $1)\` ($n of $total) via \`git\` and \`make\`. $(basename $1) $2." 5 70
+	echo -ne "M!lk Installation - Installing \`$(basename $1)\` ($n of $total) via \`git\` and \`make\`. $(basename $1) $2."
 	git clone --depth 1 "$1" "$dir" &>/dev/null
 	cd "$dir" || exit
 	make &>/dev/null
@@ -34,7 +35,7 @@ makeinstall() {
 	cd /tmp ;
 }
 
-installLoop() { \
+installPackages() { \
 	([ -f "$requirements" ] && cp "$requirements" /tmp/requirements.csv) || curl -Ls "$requirements" > /tmp/requirements.csv
 	total=$(wc -l < /tmp/requirements.csv)
 	while IFS=, read -r tag program comment; do
@@ -43,16 +44,29 @@ installLoop() { \
 	"") install "$program" "$comment" ;;
 	"*") makeinstall "$program" "$comment" ;;
 	esac
-	done < /tmp/progs.csv ;
+  done < /tmp/requirements.csv ;
+}
+
+installRice() {
+	echo -ne "Downloading and installing config files..."
+	git clone "$1" /tmp/dotfiles &>/dev/null
+	mkdir -p "$2"
+	cp -rT /tmp/dotfiles/. "$2"
+  echo " Done"
 }
 
 ### RUNTIME
 
 # Checks
 initialCheck
+echo "Updating APT..."
+# apt-get update &>/dev/null
 
-echo "Installing rice my dude..."
-apt-get update
-apt-get install dialog
-install
+echo "Installing required packages..."
+installPackages
+
+echo "Installing RICE..."
+echo "Which user do you want this rice to be installed on?"
+read user
+installRice "$dotfiles" "/home/$user/.config"
 # dkpt --install <(wget https://raw.githubusercontent.com/maestrogerardo/i3-gaps-deb/master/i3-gaps-deb)
