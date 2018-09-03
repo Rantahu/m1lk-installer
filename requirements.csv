@@ -1,2 +1,15 @@
 TAG,NAME(or git url),PURPOSE
+,i3,window manager
 ,qutebrowser,vim based browser,
+,ranger,file manager
+,rofi,d menu
+,xfce4-terminal,terminal
+,xbacklight, Laptop brightness
+,playerctl, Media controls
+,alsa-utils, volume control
+,lightdm, display manager and lock screen
+,xautolock, autolocker
+,scrot, for screenshots
+,feh, images
+,compton,
+g,https://github.com/tobi-wan-kenobi/bumblebee-status.git,

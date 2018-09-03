@@ -25,7 +25,7 @@ install() {
   echo " Done!"
 }
 
-makeinstall() {
+makeInstall() {
 	dir=$(mktemp -d)
 	echo -ne "M!lk Installation - Installing \`$(basename $1)\` ($n of $total) via \`git\` and \`make\`. $(basename $1) $2."
 	git clone --depth 1 "$1" "$dir" &>/dev/null
@@ -35,6 +35,12 @@ makeinstall() {
 	cd /tmp ;
 }
 
+
+gitInstall() {
+  echo -ne "M!lk Installation - Installing \`$(basename $1)\` ($n of $total) via \`git\` and \`make\`. $(basename $1) $2."
+  cd /home/"$user" &&  git clone "$1"
+}
+
 installPackages() { \
 	([ -f "$requirements" ] && cp "$requirements" /tmp/requirements.csv) || curl -Ls "$requirements" > /tmp/requirements.csv
 	total=$(wc -l < /tmp/requirements.csv)
@@ -42,7 +48,8 @@ installPackages() { \
 	n=$((n+1))
 	case "$tag" in
 	"") install "$program" "$comment" ;;
-	"*") makeinstall "$program" "$comment" ;;
+	"*") makeInstall "$program" "$comment" ;;
+  "g") gitInstall "$program" "$comment" ;;
 	esac
   done < /tmp/requirements.csv ;
 }
@@ -61,12 +68,10 @@ installRice() {
 initialCheck
 echo "Updating APT..."
 # apt-get update &>/dev/null
-
-echo "Installing required packages..."
-installPackages
-
-echo "Installing RICE..."
 echo "Which user do you want this rice to be installed on?"
 read user
+echo "Installing required packages..."
+installPackages
+echo "Installing RICE..."
 installRice "$dotfiles" "/home/$user/.config"
 # dkpt --install <(wget https://raw.githubusercontent.com/maestrogerardo/i3-gaps-deb/master/i3-gaps-deb)
