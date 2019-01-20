@@ -12,4 +12,8 @@ TAG,NAME(or git url),PURPOSE
 ,scrot, for screenshots
 ,feh, images
 ,compton,
-g,https://github.com/tobi-wan-kenobi/bumblebee-status.git,
+,vim, terminal text editor
+,xinit,
+,xserver-xorg,
+,chromium, web broswer
+,gimp, image editor
