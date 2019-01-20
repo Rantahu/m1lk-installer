@@ -1,12 +1,12 @@
 #!/bin/bash
 
 # M!Lk Rice Installer
-# by Rantahu <rantahu@gmail.com>
+# by s1mb10t3 <s1mb10t3@pm.me>
 # License: GNU GPLv3
 
 ### Vars
-[ -z ${dotfiles+x} ] && dotfiles="https://github.com/rantahu/dotfiles.git"
-[ -z ${requirements+x} ] && requirements="https://raw.githubusercontent.com/rantahu/m1lk-installer/master/requirements.csv"
+[ -z ${dotfiles+x} ] && dotfiles="https://github.com/s1mb10t3/dotfiles.git"
+[ -z ${requirements+x} ] && requirements="https://raw.githubusercontent.com/s1mb10t3/m1lk-installer/master/requirements.csv"
 
 ### FUNCTIONS
 initialCheck() {
@@ -21,14 +21,14 @@ initialCheck() {
 
 install() {
 	echo -ne "M!lk Installation - Installing \`$1\` ($n of $total). $1 $2..."
-  apt-get install "$1" &> /dev/null
+  apt-get -y --force-yes install "$1" &>/dev/null
   echo " Done!"
 }
 
 makeInstall() {
 	dir=$(mktemp -d)
 	echo -ne "M!lk Installation - Installing \`$(basename $1)\` ($n of $total) via \`git\` and \`make\`. $(basename $1) $2."
-	git clone --depth 1 "$1" "$dir" &>/dev/null
+	sudo -u "$user" git clone --depth 1 "$1" "$dir" &>/dev/null
 	cd "$dir" || exit
 	make &>/dev/null
 	make install &>/dev/null
@@ -38,7 +38,7 @@ makeInstall() {
 
 gitInstall() {
   echo -ne "M!lk Installation - Installing \`$(basename $1)\` ($n of $total) via \`git\` and \`make\`. $(basename $1) $2."
-  cd /home/"$user" &&  git clone "$1"
+  cd /home/"$user" && sudo -u "$user"  git clone "$1"
 }
 
 installPackages() { \
@@ -56,10 +56,27 @@ installPackages() { \
 
 installRice() {
 	echo -ne "Downloading and installing config files..."
-	git clone "$1" /tmp/dotfiles &>/dev/null
-	mkdir -p "$2"
-	cp -rT /tmp/dotfiles/. "$2"
+	sudo -u "$user" git clone "$1" /tmp/dotfiles &>/dev/null
+	sudo -u "$user" mkdir -p "$2"
+	sudo -u "$user" cp -rf /tmp/dotfiles/. "$2"
   echo " Done"
+}
+
+installi3Gaps() {
+  echo "Installing i3-Gaps and it's dependencies"
+  apt-get -y --force-yes install libxcb-keysyms1-dev libpango1.0-dev \
+          libxcb-util0-dev xcb libxcb1-dev libxcb-icccm4-dev libyajl-dev \
+          libev-dev libxcb-xkb-dev libxcb-cursor-dev libxkbcommon-dev \
+          libxcb-xinerama0-dev libxkbcommon-x11-dev libstartup-notification0-dev \
+          libxcb-randr0-dev libxcb-xrm0 libxcb-xrm-dev libxcb-shape0-dev &>/dev/null
+  sudo -u "$user" git clone clone https://www.github.com/Airblader/i3 /tmp/i3-gaps &>/dev/null
+  cd /tmp/i3-Gaps
+  autoreconf --force --install
+  rm -rf build/
+  sudo -u "$user" mkdir -p build && cd build/
+  ../configure --prefix=/usr --sysconfdir=/etc --disable-sanitizers
+  make
+  make install
 }
 
 ### RUNTIME
@@ -67,11 +84,13 @@ installRice() {
 # Checks
 initialCheck
 echo "Updating APT..."
-# apt-get update &>/dev/null
+apt-get -y --force-yes update &>/dev/null
+apt-get -y --force-yes install curl git &>/dev/null
 echo "Which user do you want this rice to be installed on?"
 read user
 echo "Installing required packages..."
+installi3Gaps
 installPackages
+apt -y --force-yes autoremove &>/dev/null
 echo "Installing RICE..."
 installRice "$dotfiles" "/home/$user/.config"
-# dkpt --install <(wget https://raw.githubusercontent.com/maestrogerardo/i3-gaps-deb/master/i3-gaps-deb)

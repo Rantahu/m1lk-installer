@@ -1,5 +1,4 @@
 TAG,NAME(or git url),PURPOSE
-,i3,window manager
 ,qutebrowser,vim based browser,
 ,ranger,file manager
 ,rofi,d menu
