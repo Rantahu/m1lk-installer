@@ -1,4 +1,4 @@
-TAG,NAME(or git url),PURPOSE
+TAG,NAME,PURPOSE,URL,OPTIONS
 ,qutebrowser,vim based browser,
 ,ranger,file manager
 ,rofi,d menu
@@ -16,3 +16,6 @@ TAG,NAME(or git url),PURPOSE
 ,xserver-xorg,
 ,chromium, web broswer
 ,gimp, image editor
+,i3status,
+deb,atom,text editor,https://github.com/atom/atom/releases/download/v1.34.0/atom-amd64.deb
+tar,firefox, web broswer,https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US

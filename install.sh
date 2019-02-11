@@ -19,6 +19,16 @@ initialCheck() {
   echo "Checks done!"
 }
 
+userCheck(){
+  echo "Which user do you want this rice to be installed on?"
+  while true; do
+    read user
+    if id "$user" >/dev/null 2>$user; then
+      done
+    else
+      echo "User \`$user\` does not exist..."
+}
+
 install() {
 	echo -ne "M!lk Installation - Installing \`$1\` ($n of $total). $1 $2..."
   apt-get -y --force-yes install "$1" &>/dev/null
@@ -38,18 +48,27 @@ makeInstall() {
 
 gitInstall() {
   echo -ne "M!lk Installation - Installing \`$(basename $1)\` ($n of $total) via \`git\` and \`make\`. $(basename $1) $2."
-  cd /home/"$user" && sudo -u "$user"  git clone "$1"
+  cd /home/"$user" && sudo -u "$user"  git clone "$4"
+}
+
+debInstall(){
+
+}
+
+tarInstall(){
+
 }
 
 installPackages() { \
 	([ -f "$requirements" ] && cp "$requirements" /tmp/requirements.csv) || curl -Ls "$requirements" > /tmp/requirements.csv
 	total=$(wc -l < /tmp/requirements.csv)
-	while IFS=, read -r tag program comment; do
+	while IFS=, read -r tag program comment url options; do
 	n=$((n+1))
 	case "$tag" in
-	"") install "$program" "$comment" ;;
-	"*") makeInstall "$program" "$comment" ;;
-  "g") gitInstall "$program" "$comment" ;;
+	"") install "$program" "$comment" "$options";;
+  "git") gitInstall "$program" "$comment" "$url" "$options";;
+  "deb") debInstall "$program" "$comment" "$url" "$options";;
+  "tar") tarInstall "$program" "$comment" "$url" "$options";;
 	esac
   done < /tmp/requirements.csv ;
 }
@@ -69,14 +88,20 @@ installi3Gaps() {
           libev-dev libxcb-xkb-dev libxcb-cursor-dev libxkbcommon-dev \
           libxcb-xinerama0-dev libxkbcommon-x11-dev libstartup-notification0-dev \
           libxcb-randr0-dev libxcb-xrm0 libxcb-xrm-dev libxcb-shape0-dev &>/dev/null
-  sudo -u "$user" git clone clone https://www.github.com/Airblader/i3 /tmp/i3-gaps &>/dev/null
-  cd /tmp/i3-Gaps
-  autoreconf --force --install
+  sudo -u "$user" git clone https://www.github.com/Airblader/i3 /tmp/i3-gaps &>/dev/null
+  cd /tmp/i3-gaps
+  autoreconf --force --install &>/dev/null
   rm -rf build/
-  sudo -u "$user" mkdir -p build && cd build/
-  ../configure --prefix=/usr --sysconfdir=/etc --disable-sanitizers
-  make
-  make install
+  sudo -u "$user" mkdir -p build && cd build/ &>/dev/null
+  ../configure --prefix=/usr --sysconfdir=/etc --disable-sanitizers &>/dev/null
+  make &>/dev/null
+  make install &>/dev/null
+}
+
+optionalInstall(){
+  # TO DO:
+  #
+  # Ask user to install extra optional programs
 }
 
 ### RUNTIME
@@ -85,11 +110,10 @@ installi3Gaps() {
 initialCheck
 echo "Updating APT..."
 apt-get -y --force-yes update &>/dev/null
-apt-get -y --force-yes install curl git &>/dev/null
-echo "Which user do you want this rice to be installed on?"
-read user
-echo "Installing required packages..."
+apt-get -y --force-yes install curl git dh-autoreconf &>/dev/null
+userCheck
 installi3Gaps
+echo "Installing required packages..."
 installPackages
 apt -y --force-yes autoremove &>/dev/null
 echo "Installing RICE..."
