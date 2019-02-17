@@ -77,7 +77,11 @@ installRice() {
 	echo -ne "Downloading and installing config files..."
 	sudo -u "$user" git clone "$1" /tmp/dotfiles &>/dev/null
 	sudo -u "$user" mkdir -p "$2"
-	sudo -u "$user" cp -rf /tmp/dotfiles/. "$2"
+	sudo -u "$user" cp -r /tmp/dotfiles/i3 /tmp/dotfiles/compton \
+                  /tmp/dotfiles/qutebrowser /tmp/dotfiles/rofi /tmp/dotfiles/i3 \
+                  /tmp/dotfiles/colorcheatsheet.css /tmp/dotfiles/gtk-3.0 "$2"
+  cp /tmp/dotfiles/grub /etc/default/
+  sudo -u "$user" cp /tmp/dotfiles/images/grub.png /usr/share/images/grub.png
   echo " Done"
 }
 
