@@ -58,6 +58,7 @@ gitInstall() {
 debInstall() {
   echo -ne "M!lk Installation - Installing \`$1\` ($n of $total). $1 $2..."
   wget -O /tmp/"$1" "$3" && dpkg -i /tmp/"$1"
+  apt-get install -f
 }
 
 tarInstall() {
