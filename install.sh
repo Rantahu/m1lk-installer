@@ -19,15 +19,19 @@ initialCheck() {
   echo "Checks done!"
 }
 
-userCheck(){
+userCheck() {
   echo "Which user do you want this rice to be installed on?"
   while true; do
     read user
     if id "$user" >/dev/null 2>$user; then
-      done
+      rm $user
+      break
     else
-      echo "User \`$user\` does not exist..."
+      echo "User \`$user\` does not exist... Please enter a user that exist..."
+    fi
+  done
 }
+
 
 install() {
 	echo -ne "M!lk Installation - Installing \`$1\` ($n of $total). $1 $2..."
@@ -51,12 +55,13 @@ gitInstall() {
   cd /home/"$user" && sudo -u "$user"  git clone "$4"
 }
 
-debInstall(){
-
+debInstall() {
+  echo -ne "M!lk Installation - Installing \`$1\` ($n of $total). $1 $2..."
+  wget -O /tmp/"$1" "$3" && dpkg -i /tmp/"$1"
 }
 
-tarInstall(){
-
+tarInstall() {
+  echo "noot"
 }
 
 installPackages() { \
@@ -77,11 +82,12 @@ installRice() {
 	echo -ne "Downloading and installing config files..."
 	sudo -u "$user" git clone "$1" /tmp/dotfiles &>/dev/null
 	sudo -u "$user" mkdir -p "$2"
-	sudo -u "$user" cp -r /tmp/dotfiles/i3 /tmp/dotfiles/compton \
-                  /tmp/dotfiles/qutebrowser /tmp/dotfiles/rofi /tmp/dotfiles/i3 \
+	sudo -u "$user" cp -rf /tmp/dotfiles/i3 /tmp/dotfiles/compton \
+                  /tmp/dotfiles/qutebrowser /tmp/dotfiles/rofi \
                   /tmp/dotfiles/colorcheatsheet.css /tmp/dotfiles/gtk-3.0 "$2"
-  cp /tmp/dotfiles/grub /etc/default/
-  sudo -u "$user" cp /tmp/dotfiles/images/grub.png /usr/share/images/grub.png
+  cp -f /tmp/dotfiles/grub /etc/default/
+  cp -f /tmp/dotfiles/images/grub.png /usr/share/images/
+  update-grub
   echo " Done"
 }
 
@@ -106,6 +112,7 @@ optionalInstall(){
   # TO DO:
   #
   # Ask user to install extra optional programs
+  echo "noot"
 }
 
 ### RUNTIME

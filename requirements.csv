@@ -19,3 +19,4 @@ TAG,NAME,PURPOSE,URL,OPTIONS
 ,i3status,
 deb,atom,text editor,https://github.com/atom/atom/releases/download/v1.34.0/atom-amd64.deb
 tar,firefox, web broswer,https://download.mozilla.org/?product=firefox-latest-ssl&os=linux64&lang=en-US
+deb,lightdm webkit2,https://download.opensuse.org/repositories/home:/antergos/Debian_9.0/amd64/lightdm-webkit2-greeter_2.2.5-1+15.5_amd64.deb
